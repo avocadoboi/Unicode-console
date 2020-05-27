@@ -1,6 +1,6 @@
 # Unicode console
 
-Small class that makes console input/output with utf-8 easier in c++.
+Small class that makes console input/output with utf-8 easier in c++17.
 
 ## Usage
 ### Read (UTF-8 string) from console
