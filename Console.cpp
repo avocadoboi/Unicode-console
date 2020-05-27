@@ -8,7 +8,7 @@
 // Private
 //
 
-void Console::readString(std::string& p_string) const
+void Console::readString(std::string& p_string) 
 {
 #ifdef _WIN32
 	// The only way to read unicode characters from the console on Windows is to read UTF-16 in a wide string.
