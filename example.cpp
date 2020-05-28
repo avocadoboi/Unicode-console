@@ -2,13 +2,12 @@
 
 int main()
 {
-	console.println(u8"Write something! Maybe unicode Åå Ää Öö Ññ Üü α δ λ μ π τ");
+	Console::println(u8"Write something! Maybe unicode Åå Ää Öö Ññ Üü α δ λ μ π τ")
+	        .println("You wrote: \"", Console::read<std::string>(), "\".");
 
-	console.println("You wrote: \"", console.read<std::string>(), "\".");
+	Console::io << "\nNow write a number between 1 and 4: ";
 
-	console << "\nNow write a number between 1 and 4: ";
-
-	auto number = console.readValidated<int>(
+	auto number = Console::readValidated<int>(
 		[](int number) {
 			return number >= 1 && number <= 4;
 		},
@@ -16,13 +15,13 @@ int main()
 		"That's not a number. Try again."
 	);
 	
-	console.println("Thanks, you wrote ", number, ".");
+	Console::println("Thanks, you wrote ", number, ".");
 
 	std::string firstInput, secondInput;
-	console << "\nNow write something interesting: " >> firstInput 
-	        << "Yes, something more please: " >> secondInput
-	        << "This is what you wrote, but the other way around: " 
-	        << secondInput << ' ' << firstInput << '\n';
+	Console::io << "\nNow write something interesting: " >> firstInput 
+	            << "Yes, something more please: " >> secondInput
+	            << "This is what you wrote, but the other way around: " 
+	            << secondInput << ' ' << firstInput << '\n';
 
-	console.println("How nice!");
+	Console::println("How nice!");
 }

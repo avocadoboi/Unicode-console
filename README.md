@@ -5,37 +5,37 @@ Small class that makes console input/output with utf-8 easier in c++17.
 ## Usage
 ### Read (UTF-8 string) from console
 ```cpp
-auto input = console.read<std::string>();
+auto input = Console::read<std::string>();
 ```
 Or:
 ```cpp
 std::string input;
-console >> input
+Console::io >> input
 ```
 
 
 ### Write to console
 ```cpp
-console.println(u8"Here is a little unicode: åäö ÿëã")
-       .println("And a number: ", 1234);
+Console::println(u8"Here is a little unicode: åäö ÿëã")
+        .println("And a number: ", 1234);
 ```
 Or:
 ```cpp
-console << u8"Here is a little unicode: åäö ÿëã\n" 
-        << "And a number: " << 1234 << '\n';
+Console::io << u8"Here is a little unicode: åäö ÿëã\n" 
+            << "And a number: " << 1234 << '\n';
 ```
 
 
 ### Validate input from console
 #### Only validate type (for numbers)
 ```cpp
-auto input = console.readValidated<double>("That's not a number! Try again.");
+auto input = Console::readValidated<double>("That's not a number! Try again.");
 ```
 
 #### Custom validation + type validation with single error message
 ```cpp
 // input should be between -3.14 and 3.14
-auto input = console.readValidated<double>(
+auto input = Console::readValidated<double>(
     [](auto input) {
         return input > -3.14 && input < 3.14;
     }, 
@@ -46,7 +46,7 @@ auto input = console.readValidated<double>(
 #### Custom validation + type validation with separate error messages
 ```cpp
 // input should be between -3.14 and 3.14
-auto input = console.readValidated<double>(
+auto input = Console::readValidated<double>(
     [](auto input) {
         return input > -3.14 && input < 3.14;
     }, 
