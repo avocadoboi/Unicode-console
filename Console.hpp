@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <string>
+#include <string_view>
 
 namespace Console
 {
@@ -17,7 +17,7 @@ namespace Console
 			This is the same as std::cout.operator<<.
 		*/
 		template<typename T>
-		Console& operator<<(T const& p_type) 
+		Console& operator<<(T const& p_type)
 		{
 			std::cout << p_type;
 			return *this;
@@ -26,7 +26,7 @@ namespace Console
 			Prints p_arguments to the console and appends a new line afterwards.
 		*/
 		template<typename ... Argument>
-		Console& println(Argument&& ... p_arguments) 
+		Console& println(Argument&& ... p_arguments)
 		{
 			((std::cout << std::forward<Argument>(p_arguments)), ...) << '\n';
 			return *this;
@@ -38,27 +38,29 @@ namespace Console
 		/*
 			Returns whether the last input read from the console was the correct type.
 		*/
-		bool getWasLastInputValid() 
+		bool getWasLastInputValid()
 		{
 			return m_wasLastInputValid;
 		}
 		/*
 			Same as getWasLastInputValid().
 		*/
-		operator bool() 
+		operator bool()
 		{
 			return m_wasLastInputValid;
 		}
 		/*
 			Same as !getWasLastInputValid().
 		*/
-		bool operator!() 
+		bool operator!()
 		{
 			return !m_wasLastInputValid;
 		}
 
 		/*
 			This uses std::cin.operator>> but clears newline characters if user wrote invalid input.
+			If the user did provide invalid input, getWasLastInputValid() or operator bool() will
+			return false until the next time input is correctly read.
 		*/
 		template<typename T>
 		Console& operator>>(T& p_type)
@@ -67,17 +69,18 @@ namespace Console
 			m_wasLastInputValid = (bool)std::cin;
 			if (!m_wasLastInputValid)
 			{
-				// A number was expected but the user wrote characters, so we need to clear newline characters.
-				std::cin.clear();
+				// A number was expected but the user wrote characters, so we need to ignore the 
+				// trailing newline character and clear the error state of std::cin.
 				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				std::cin.clear();
 			}
 			return *this;
 		}
 
 	private:
-	#ifdef _WIN32
+#ifdef _WIN32
 		void* m_inputHandle; // Used to read unicode from console in the method below
-	#endif
+#endif
 		void readString(std::string& p_string);
 
 	public:
@@ -88,7 +91,7 @@ namespace Console
 			but a simpler interface.
 		*/
 		template<typename T>
-		T read() 
+		T read()
 		{
 			T output;
 			operator>>(output);
@@ -96,11 +99,11 @@ namespace Console
 		}
 
 		/*
-			Reads input from the console and prints p_errorMessage if the input did not 
+			Reads input from the console and prints p_errorMessage if the input did not
 			correspond to the datatype T and tries again until it does.
 		*/
 		template<typename T>
-		T readValidated(std::string const& p_errorMessage) 
+		T readValidated(std::string_view p_errorMessage)
 		{
 			T result;
 			while (true)
@@ -117,18 +120,18 @@ namespace Console
 			}
 		}
 		/*
-			Reads input from the console and prints p_errorMessage if p_getIsValid returns 
+			Reads input from the console and prints p_errorMessage if p_getIsValid returns
 			false and tries again until p_getIsValid returns true.
 		*/
 		template<typename T, typename ValidatorType>
-		T readValidated(ValidatorType const& p_getIsValid, std::string const& p_errorMessage) 
+		T readValidated(ValidatorType const& p_getIsValid, std::string_view p_errorMessage)
 		{
 			T result;
 			while (true)
 			{
 				operator>>(result);
 
-				if (operator bool() && p_getIsValid(result))
+				if (m_wasLastInputValid && p_getIsValid(result))
 				{
 					return result;
 				}
@@ -144,7 +147,7 @@ namespace Console
 			If the input was invalid in any of these two ways it tries to read input again until the input is valid.
 		*/
 		template<typename T, typename ValidatorType>
-		T readValidated(ValidatorType const& p_getIsValid, std::string const& p_customValidationErrorMessage, std::string const& p_typeValidationErrorMessage)
+		T readValidated(ValidatorType const& p_getIsValid, std::string_view p_customValidationErrorMessage, std::string_view p_typeValidationErrorMessage)
 		{
 			T result;
 			while (true)
@@ -189,7 +192,7 @@ namespace Console
 		Prints p_arguments to the console and appends a new line afterwards.
 	*/
 	template<typename ... Argument>
-	Console& println(Argument&& ... p_arguments) 
+	Console& println(Argument&& ... p_arguments)
 	{
 		return io.println(std::forward<Argument>(p_arguments)...);
 	}
@@ -200,25 +203,25 @@ namespace Console
 		but a simpler interface.
 	*/
 	template<typename T>
-	T read() 
+	T read()
 	{
 		return io.read<T>();
 	}
 	/*
-		Reads input from the console and prints p_errorMessage if the input did not 
+		Reads input from the console and prints p_errorMessage if the input did not
 		correspond to the datatype T and tries again until it does.
 	*/
 	template<typename T>
-	T readValidated(std::string const& p_errorMessage) 
+	T readValidated(std::string_view p_errorMessage)
 	{
 		return io.readValidated<T>(p_errorMessage);
 	}
 	/*
-		Reads input from the console and prints p_errorMessage if p_getIsValid returns 
+		Reads input from the console and prints p_errorMessage if p_getIsValid returns
 		false and tries again until p_getIsValid returns true.
 	*/
 	template<typename T, typename ValidatorType>
-	T readValidated(ValidatorType const& p_getIsValid, std::string const& p_errorMessage) 
+	T readValidated(ValidatorType const& p_getIsValid, std::string_view p_errorMessage)
 	{
 		return io.readValidated<T>(p_getIsValid, p_errorMessage);
 	}
@@ -228,7 +231,7 @@ namespace Console
 		If the input was invalid in any of these two ways it tries to read input again until the input is valid.
 	*/
 	template<typename T, typename ValidatorType>
-	T readValidated(ValidatorType const& p_getIsValid, std::string const& p_customValidationErrorMessage, std::string const& p_typeValidationErrorMessage)
+	T readValidated(ValidatorType const& p_getIsValid, std::string_view p_customValidationErrorMessage, std::string_view p_typeValidationErrorMessage)
 	{
 		return io.readValidated<T>(p_getIsValid, p_customValidationErrorMessage, p_typeValidationErrorMessage);
 	}
