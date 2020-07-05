@@ -69,7 +69,6 @@ namespace Console
 			m_wasLastInputValid = (bool)std::cin;
 			if (!m_wasLastInputValid)
 			{
-				std::cout << "invalid!!\n";
 				// A number was expected but the user wrote characters, so we need to ignore the 
 				// trailing newline character and clear the error state of std::cin.
 				std::cin.clear();
