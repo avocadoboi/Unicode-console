@@ -17,7 +17,7 @@ namespace Console
 			This is the same as std::cout.operator<<.
 		*/
 		template<typename T>
-		Console& operator<<(T const& p_type)
+		auto operator<<(T const& p_type) -> Console&
 		{
 			std::cout << p_type;
 			return *this;
@@ -26,9 +26,9 @@ namespace Console
 			Prints p_arguments to the console and appends a new line afterwards.
 		*/
 		template<typename ... Argument>
-		Console& println(Argument&& ... p_arguments)
+		auto println(Argument&& ... p_arguments) -> Console&
 		{
-			((std::cout << std::forward<Argument>(p_arguments)), ...) << '\n';
+			(std::cout << ... << std::forward<Argument>(p_arguments)) << '\n';
 			return *this;
 		}
 
@@ -38,41 +38,42 @@ namespace Console
 		/*
 			Returns whether the last input read from the console was the correct type.
 		*/
-		bool getWasLastInputValid()
+		auto getWasLastInputValid() noexcept -> bool
 		{
 			return m_wasLastInputValid;
 		}
 		/*
 			Same as getWasLastInputValid().
 		*/
-		operator bool()
+		operator bool() noexcept
 		{
 			return m_wasLastInputValid;
 		}
 		/*
 			Same as !getWasLastInputValid().
 		*/
-		bool operator!()
+		auto operator!() noexcept -> bool
 		{
 			return !m_wasLastInputValid;
 		}
 
 		/*
 			This uses std::cin.operator>> but clears newline characters if user wrote invalid input.
-			If the user did provide invalid input, getWasLastInputValid() or operator bool() will
+			If the user did provide invalid input, getWasLastInputValid() or operator bool() will 
 			return false until the next time input is correctly read.
 		*/
 		template<typename T>
-		Console& operator>>(T& p_type)
+		auto operator>>(T& p_type) -> Console&
 		{
 			std::cin >> p_type;
 			m_wasLastInputValid = (bool)std::cin;
 			if (!m_wasLastInputValid)
 			{
+				std::cout << "invalid!!\n";
 				// A number was expected but the user wrote characters, so we need to ignore the 
 				// trailing newline character and clear the error state of std::cin.
-				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			}
 			return *this;
 		}
@@ -81,17 +82,17 @@ namespace Console
 #ifdef _WIN32
 		void* m_inputHandle; // Used to read unicode from console in the method below
 #endif
-		void readString(std::string& p_string);
+		auto readString(std::string& p_string) -> void;
 
 	public:
 		/*
 			This is the same as for example:
-				std::string string;
+				auto string = std::string{};
 				console >> string;
 			but a simpler interface.
 		*/
 		template<typename T>
-		T read()
+		auto read() -> T
 		{
 			T output;
 			operator>>(output);
@@ -103,7 +104,7 @@ namespace Console
 			correspond to the datatype T and tries again until it does.
 		*/
 		template<typename T>
-		T readValidated(std::string_view p_errorMessage)
+		auto readValidated(std::string_view const p_errorMessage) -> T
 		{
 			T result;
 			while (true)
@@ -124,7 +125,7 @@ namespace Console
 			false and tries again until p_getIsValid returns true.
 		*/
 		template<typename T, typename ValidatorType>
-		T readValidated(ValidatorType const& p_getIsValid, std::string_view p_errorMessage)
+		auto readValidated(ValidatorType const& p_getIsValid, std::string_view const p_errorMessage) -> T
 		{
 			T result;
 			while (true)
@@ -147,7 +148,9 @@ namespace Console
 			If the input was invalid in any of these two ways it tries to read input again until the input is valid.
 		*/
 		template<typename T, typename ValidatorType>
-		T readValidated(ValidatorType const& p_getIsValid, std::string_view p_customValidationErrorMessage, std::string_view p_typeValidationErrorMessage)
+		auto readValidated(ValidatorType const& p_getIsValid, 
+		                   std::string_view const p_customValidationErrorMessage, 
+						   std::string_view const p_typeValidationErrorMessage) -> T
 		{
 			T result;
 			while (true)
@@ -177,7 +180,7 @@ namespace Console
 		Specialization of the input operator template, to support UTF-8 input on Windows.
 	*/
 	template<>
-	inline Console& Console::operator>><std::string>(std::string& p_string)
+	inline auto Console::operator>><std::string>(std::string& p_string) -> Console&
 	{
 		readString(p_string);
 		return *this;
@@ -192,18 +195,18 @@ namespace Console
 		Prints p_arguments to the console and appends a new line afterwards.
 	*/
 	template<typename ... Argument>
-	Console& println(Argument&& ... p_arguments)
+	auto println(Argument&& ... p_arguments) -> Console&
 	{
 		return io.println(std::forward<Argument>(p_arguments)...);
 	}
 	/*
 		This is the same as for example:
-			std::string string;
+			auto string = std::string{};
 			Console::io >> string;
 		but a simpler interface.
 	*/
 	template<typename T>
-	T read()
+	auto read() -> T
 	{
 		return io.read<T>();
 	}
@@ -212,7 +215,7 @@ namespace Console
 		correspond to the datatype T and tries again until it does.
 	*/
 	template<typename T>
-	T readValidated(std::string_view p_errorMessage)
+	auto readValidated(std::string_view const p_errorMessage) -> T
 	{
 		return io.readValidated<T>(p_errorMessage);
 	}
@@ -221,7 +224,7 @@ namespace Console
 		false and tries again until p_getIsValid returns true.
 	*/
 	template<typename T, typename ValidatorType>
-	T readValidated(ValidatorType const& p_getIsValid, std::string_view p_errorMessage)
+	auto readValidated(ValidatorType const& p_getIsValid, std::string_view const p_errorMessage) -> T
 	{
 		return io.readValidated<T>(p_getIsValid, p_errorMessage);
 	}
@@ -231,7 +234,9 @@ namespace Console
 		If the input was invalid in any of these two ways it tries to read input again until the input is valid.
 	*/
 	template<typename T, typename ValidatorType>
-	T readValidated(ValidatorType const& p_getIsValid, std::string_view p_customValidationErrorMessage, std::string_view p_typeValidationErrorMessage)
+	auto readValidated(ValidatorType const& p_getIsValid, 
+	                   std::string_view const p_customValidationErrorMessage, 
+					   std::string_view const p_typeValidationErrorMessage) -> T
 	{
 		return io.readValidated<T>(p_getIsValid, p_customValidationErrorMessage, p_typeValidationErrorMessage);
 	}
