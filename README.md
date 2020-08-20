@@ -5,7 +5,7 @@ Small class that makes console input/output with utf-8 easier in c++17.
 ## Usage
 ### Read (UTF-8 string) from console
 ```cpp
-auto input = Console::read<std::string>();
+auto const input = Console::read<std::string>();
 ```
 Or:
 ```cpp
@@ -29,14 +29,14 @@ Console::io << u8"Here is a little unicode: åäö ÿëã\n"
 ### Validate input from console
 #### Only validate type (for numbers)
 ```cpp
-auto input = Console::readValidated<double>("That's not a number! Try again.");
+auto const input = Console::readValidated<double>("That's not a number! Try again.");
 ```
 
 #### Custom validation + type validation with single error message
 ```cpp
 // input should be between -3.14 and 3.14
-auto input = Console::readValidated<double>(
-    [](auto input) {
+auto const input = Console::readValidated<double>(
+    [](auto const input) {
         return input > -3.14 && input < 3.14;
     }, 
     "Invalid input! Try again."
@@ -46,8 +46,8 @@ auto input = Console::readValidated<double>(
 #### Custom validation + type validation with separate error messages
 ```cpp
 // input should be between -3.14 and 3.14
-auto input = Console::readValidated<double>(
-    [](auto input) {
+auto const input = Console::readValidated<double>(
+    [](auto const input) {
         return input > -3.14 && input < 3.14;
     }, 
     "That's outside of the range! Try again.",
