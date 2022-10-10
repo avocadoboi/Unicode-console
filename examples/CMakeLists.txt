@@ -1,0 +1,2 @@
+add_executable(example_0 example.cpp)
+target_link_libraries(example_0 unicode_console)
